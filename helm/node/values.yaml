@@ -8,7 +8,7 @@ image:
   repository: vijatykumar1/react
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: v5-ci
 
 imagePullSecrets: []
 nameOverride: ""
