@@ -30,7 +30,7 @@
      replicaCount: 1
 
      image:
-       repository: vijatykumar1/react
+       repository: vijatykumar1/node-app
        pullPolicy: IfNotPresent
        tag: ""
      
