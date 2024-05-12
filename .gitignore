@@ -1,3 +1,2 @@
 # Ignore README.md files in root directory and .github/workflows directory
 README.md
-.github/workflows/README.md
