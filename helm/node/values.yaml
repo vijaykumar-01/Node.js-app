@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: vijatykumar1/react
+  repository: vijatykumar1/node-app
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: v5-ci
