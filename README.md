@@ -1,63 +1,71 @@
-# MicroK8s and ArgoCD Deployment Guide
+# Node.js Application Deployment with MicroK8s and ArgoCD
 
 ## Prerequisites
 
-- [MicroK8s](https://microk8s.io/) installed and running on your system.
-- [Docker](https://www.docker.com/) installed on your system.
-- [ArgoCD](https://argoproj.github.io/argo-cd/) installed in MicroK8s.
+- MicroK8s installed and running on your system (Alternatively, you can use Minikube or any other Kubernetes platform).
+- Docker installed on your system.
+- ArgoCD installed in MicroK8s.
+- Node.js application code.
 
 ## Steps
 
-1. **Create a GitHub Repository:**
+1. **Clone the Repository:**
    - Create a new repository on GitHub and clone it to your local machine.
      ```bash
-     git clone <repository_url>
+     git clone <repo_url>
      ```
+   - Add the necessary code from the provided repository:
+     Repository URL: [https://github.com/johnpapa/node-hello.git](https://github.com/johnpapa/node-hello.git)
 
-2. **Add Node.js App Code:**
-   - Clone the Node.js "Hello World" application repository:
-     ```bash
-     git clone https://github.com/johnpapa/node-hello.git
-     ```
-   - Add the code to your personal repository.
+2. **Setup GitHub Workflow:**
+   - Configure GitHub Actions workflow for continuous build and push of the Docker image to Docker Hub. Detailed instructions are provided in `.github/workflows/Readme.md`.
 
-3. **Set Up GitHub Workflow:**
-   - Configure a GitHub Actions workflow for continuous build and push of the Docker image to Docker Hub. Detailed instructions can be found in `.github/workflows/README.md`.
-
-4. **Create Helm Chart:**
-   - Create a Helm chart for deployment.
+3. **Create Helm Chart:**
+   - Create a Helm chart for the deployment through ArgoCD.
      ```bash
      helm create <chart_name>
      ```
-   - Update the `values.yaml` file according to your requirements.
-
-     Example `values.yaml`:
+   - Update the `values.yaml` file according to your requirements. Example:
      ```yaml
      replicaCount: 1
 
      image:
        repository: vijatykumar1/react
        pullPolicy: IfNotPresent
-       tag: "" # Leave empty for GitHub Actions to generate dynamically
-
+       tag: ""
+     
      service:
        type: ClusterIP
        port: 3000
        targetport: 3000
      ```
+   - Leave the `tag` field empty to dynamically update it during the GitHub Actions workflow.
 
-5. **Update Helm Chart Automatically:**
-   - Update the Docker image tag in the Helm chart dynamically using GitHub Actions.
+4. **Update Helm Chart Values:**
+   - Update the tag name using the `sed` command in the GitHub Actions workflow. Example:
      ```bash
-     sed -i "s/tag:.*/tag: $DOCKER_TAG/" helm/<chart_name>/values.yaml
-     git add helm/<chart_name>/values.yaml
+     sed -i "s/tag:.*/tag: $DOCKER_TAG/" helm/node/values.yaml
+     git config --global user.email "iamvijaykumar.a@gmail.com"
+     git config --global user.name "vijaykumar-01"
+     git add helm/node/values.yaml
      git commit -m "Update image tag in Helm chart"
      git push
      ```
 
-6. **Deploy with ArgoCD:**
-   - Create an ArgoCD application manifest file stored in the `argocd` folder of the Git repository.
-   - Deploy the ArgoCD application manifest to sync the Git repository and deploy it into Kubernetes.
-   - Alternatively, login to the ArgoCD server and manually create the application by providing the app name, Git repository URL, branch, path towards the Helm chart, cluster URL, and configure automatic sync process. ArgoCD will detect changes in the Helm chart repository and automatically deploy the updated image to Kubernetes.
+5. **Deploy with ArgoCD:**
+   - Configure ArgoCD with the repository URL and provide the path to the Helm chart.
+   - Specify the cluster URL and select automatic sync to detect changes in the Helm chart.
+   - Alternatively, deploy the ArgoCD application manifest file stored in the `argocd` folder of the Git repository.
 
-By following these steps, you can automate the deployment of your Node.js application using MicroK8s, Docker, GitHub Actions, Helm, and ArgoCD.
+6. **Verify Deployment:**
+   - Use the following commands to verify the deployment:
+     ```bash
+     kubectl get pods -n <namespace>   # Example: kubectl get pods -n dev
+     kubectl get svc
+     ```
+   - Use port forwarding for local access if no ingress or load balancer is set up:
+     ```bash
+     kubectl port-forward svc/nodejs-app -n <namespace> 3001:3000
+     ```
+
+Ensure that the provided steps are followed carefully to deploy the Node.js application with MicroK8s and ArgoCD successfully. For any assistance or troubleshooting, refer to the documentation or seek help from the repository owner.
